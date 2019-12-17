@@ -3,7 +3,7 @@ import { Item, Button, Segment, Icon, Label } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { IActivity } from "../../../app/models/activity";
 import { format } from "date-fns";
-import { ActivityListItemAttendee } from "./ActivityListItemAttendees";
+import { ActivityListItemAttendees } from "./ActivityListItemAttendees";
 
 export const ActivityListItem: React.FC<{ activity: IActivity }> = ({
   activity
@@ -13,11 +13,24 @@ export const ActivityListItem: React.FC<{ activity: IActivity }> = ({
     <Segment.Group>
       <Segment>
         <Item.Group>
-          <Item key={activity.id}>
-            <Item.Image size="tiny" circular src={host.image || "/assets/user.png"} />
+          <Item>
+            <Item.Image
+              size="tiny"
+              circular
+              src={host.image || "/assets/user.png"}
+              style={{ marginBottom: 3 }}
+            />
             <Item.Content>
-              <Item.Header as={Link} to={`/activities/${activity.id}`}>{activity.title}</Item.Header>
-              <Item.Description>Hosted by {host.displayName}</Item.Description>
+              <Item.Header as={Link} to={`/activities/${activity.id}`}>
+                {activity.title}
+              </Item.Header>
+              <Item.Description>
+                Hosted by
+                <Link to={`/profile/${host.username}`}>
+                  {" "}
+                  {host.displayName}
+                </Link>
+              </Item.Description>
               {activity.isHost && (
                 <Item.Description>
                   <Label
@@ -45,7 +58,7 @@ export const ActivityListItem: React.FC<{ activity: IActivity }> = ({
         <Icon name="marker" /> {activity.venue}, {activity.city}
       </Segment>
       <Segment secondary>
-        <ActivityListItemAttendee attendees={activity.attendees} />
+        <ActivityListItemAttendees attendees={activity.attendees} />
       </Segment>
       <Segment clearing>
         <span>{activity.description}</span>

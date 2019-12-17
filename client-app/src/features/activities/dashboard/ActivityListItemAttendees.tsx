@@ -6,7 +6,7 @@ interface IProps {
   attendees: IAttendee[];
 }
 
-export const ActivityListItemAttendee: React.FC<IProps> = ({ attendees }) => {
+export const ActivityListItemAttendees: React.FC<IProps> = ({ attendees }) => {
   return (
     <List horizontal>
       {attendees.map(attendee => (
