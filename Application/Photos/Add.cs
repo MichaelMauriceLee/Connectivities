@@ -13,7 +13,7 @@ namespace Application.Photos
 {
     public class Add
     {
-        public class Command : IRequest<Photo>
+        public class Command : IRequest<Domain.Photo>
         {
             public IFormFile File { get; set; }
         }
@@ -45,7 +45,7 @@ namespace Application.Photos
                 if (!user.Photos.Any(x => x.IsMain))
                     photo.IsMain = true;
 
-                user.Photos.Add(photo);
+                user.Photos.Add(photo);           
 
                 var success = await _context.SaveChangesAsync() > 0;
 

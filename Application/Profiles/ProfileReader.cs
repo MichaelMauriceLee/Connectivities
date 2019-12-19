@@ -35,11 +35,13 @@ namespace Application.Profiles
                 Photos = user.Photos,
                 Bio = user.Bio,
                 FollowersCount = user.Followers.Count(),
-                FollowingCount = user.Followings.Count()
+                FollowingCount = user.Followings.Count(),
             };
 
             if (currentUser.Followings.Any(x => x.TargetId == user.Id))
+            {
                 profile.IsFollowed = true;
+            }
 
             return profile;
         }

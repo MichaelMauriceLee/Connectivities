@@ -20,11 +20,11 @@ namespace API.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            try 
+            try
             {
                 await _next(context);
-            }
-            catch (Exception ex) 
+            } 
+            catch (Exception ex)
             {
                 await HandleExceptionAsync(context, ex, _logger);
             }
@@ -39,19 +39,20 @@ namespace API.Middleware
                 case RestException re:
                     logger.LogError(ex, "REST ERROR");
                     errors = re.Errors;
-                    context.Response.StatusCode = (int) re.Code;
+                    context.Response.StatusCode = (int)re.Code;
                     break;
                 case Exception e:
                     logger.LogError(ex, "SERVER ERROR");
                     errors = string.IsNullOrWhiteSpace(e.Message) ? "Error" : e.Message;
-                    context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     break;
             }
 
             context.Response.ContentType = "application/json";
             if (errors != null)
             {
-                var result = JsonSerializer.Serialize(new {
+                var result = JsonSerializer.Serialize(new 
+                {
                     errors
                 });
 

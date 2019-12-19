@@ -30,7 +30,6 @@ namespace Application.Followers
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-
                 var observer = await _context.Users.SingleOrDefaultAsync(x => x.UserName == _userAccessor.GetCurrentUsername());
 
                 var target = await _context.Users.SingleOrDefaultAsync(x => x.UserName == request.Username);

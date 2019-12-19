@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-
     public class UserController : BaseController
     {
         [AllowAnonymous]
@@ -15,7 +14,7 @@ namespace API.Controllers
         {
             return await Mediator.Send(query);
         }
-        
+
         [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(Register.Command command)

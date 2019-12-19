@@ -1,8 +1,6 @@
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Errors;
 using Application.Interfaces;
 using FluentValidation;
 using MediatR;
@@ -13,7 +11,7 @@ namespace Application.Profiles
 {
     public class Edit
     {
-        public class Command : IRequest<Unit>
+        public class Command : IRequest
         {
             public string DisplayName { get; set; }
             public string Bio { get; set; }

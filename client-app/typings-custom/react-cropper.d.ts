@@ -14,5 +14,3 @@ declare module 'react-cropper' {
     }
     export default ReactCropper;
 }
-
-

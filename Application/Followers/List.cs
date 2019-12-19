@@ -12,8 +12,8 @@ namespace Application.Followers
 {
     public class List
     {
-        public class Query : IRequest<List<Profile>>
-        {
+        public class Query : IRequest<List<Profile>> 
+        { 
             public string Username { get; set; }
             public string Predicate { get; set; }
         }
@@ -24,7 +24,7 @@ namespace Application.Followers
             private readonly IProfileReader _profileReader;
             public Handler(DataContext context, IProfileReader profileReader)
             {
-                this._profileReader = profileReader;
+                _profileReader = profileReader;
                 _context = context;
             }
 
@@ -35,28 +35,30 @@ namespace Application.Followers
                 var userFollowings = new List<UserFollowing>();
                 var profiles = new List<Profile>();
 
-                switch (request.Predicate)
+                switch(request.Predicate)
                 {
                     case "followers":
-                        {
-                            userFollowings = await queryable.Where(x => x.Target.UserName == request.Username).ToListAsync();
+                    {
+                        userFollowings = await queryable.Where(x => 
+                            x.Target.UserName == request.Username).ToListAsync();
 
-                            foreach (var follower in userFollowings)
-                            {
-                                profiles.Add(await _profileReader.ReadProfile(follower.Observer.UserName));
-                            }
-                            break;
+                        foreach(var follower in userFollowings)
+                        {
+                            profiles.Add(await _profileReader.ReadProfile(follower.Observer.UserName));
                         }
+                        break;
+                    }
                     case "following":
-                        {
-                            userFollowings = await queryable.Where(x => x.Observer.UserName == request.Username).ToListAsync();
+                    {
+                        userFollowings = await queryable.Where(x => 
+                            x.Observer.UserName == request.Username).ToListAsync();
 
-                            foreach (var follower in userFollowings)
-                            {
-                                profiles.Add(await _profileReader.ReadProfile(follower.Target.UserName));
-                            }
-                            break;
+                        foreach(var follower in userFollowings)
+                        {
+                            profiles.Add(await _profileReader.ReadProfile(follower.Target.UserName));
                         }
+                        break;
+                    }
                 }
 
                 return profiles;

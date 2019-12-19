@@ -1,37 +1,37 @@
-import React, { useState, useContext, useEffect } from "react";
-import { Segment, Form, Button, Grid } from "semantic-ui-react";
-import { ActivityFormValues } from "../../../app/models/activity";
-import { v4 as uuid } from "uuid";
-import { observer } from "mobx-react-lite";
-import { RouteComponentProps } from "react-router";
-import { Form as FinalForm, Field } from "react-final-form";
-import TextInput from "../../../app/common/form/TextInput";
-import TextAreaInput from "../../../app/common/form/TextInput";
-import { SelectInput } from "../../../app/common/form/SelectInput";
-import { category } from "../../../app/common/options/categoryOptions";
-import { DateInput } from "../../../app/common/form/DateInput";
-import { combineDateAndTime } from "../../../app/common/util/util";
+import React, { useState, useContext, useEffect } from 'react';
+import { Segment, Form, Button, Grid } from 'semantic-ui-react';
+import { ActivityFormValues } from '../../../app/models/activity';
+import { v4 as uuid } from 'uuid';
+import { observer } from 'mobx-react-lite';
+import { RouteComponentProps } from 'react-router';
+import { Form as FinalForm, Field } from 'react-final-form';
+import TextInput from '../../../app/common/form/TextInput';
+import TextAreaInput from '../../../app/common/form/TextAreaInput';
+import SelectInput from '../../../app/common/form/SelectInput';
+import DateInput from '../../../app/common/form/DateInput';
+import { category } from '../../../app/common/options/categoryOptions';
+import { combineDateAndTime } from '../../../app/common/util/util';
 import {
   combineValidators,
   isRequired,
   composeValidators,
   hasLengthGreaterThan
-} from "revalidate";
-import { RootStoreContext } from "../../../app/stores/rootStore";
+} from 'revalidate';
+import { RootStoreContext } from '../../../app/stores/rootStore';
 
 const validate = combineValidators({
-  title: isRequired({ message: "The event title is required" }),
-  category: isRequired("Category"),
+  title: isRequired({ message: 'The event title is required' }),
+  category: isRequired('Category'),
   description: composeValidators(
-    isRequired("Description"),
+    isRequired('Description'),
     hasLengthGreaterThan(4)({
-      message: "Description needs to be at least 5 characters"
+      message: 'Description needs to be at least 5 characters'
     })
   )(),
-  city: isRequired("City"),
-  venue: isRequired("Venue"),
-  date: isRequired("Date"),
-  time: isRequired("Time")
+  city: isRequired('City'),
+  venue: isRequired('Venue'),
+  date: isRequired('Date'),
+  time: isRequired('Time')
 });
 
 interface DetailParams {
@@ -57,7 +57,9 @@ const ActivityForm: React.FC<RouteComponentProps<DetailParams>> = ({
     if (match.params.id) {
       setLoading(true);
       loadActivity(match.params.id)
-        .then(activity => setActivity(new ActivityFormValues(activity)))
+        .then(activity => {
+          setActivity(new ActivityFormValues(activity));
+        })
         .finally(() => setLoading(false));
     }
   }, [loadActivity, match.params.id]);
@@ -88,71 +90,72 @@ const ActivityForm: React.FC<RouteComponentProps<DetailParams>> = ({
             render={({ handleSubmit, invalid, pristine }) => (
               <Form onSubmit={handleSubmit} loading={loading}>
                 <Field
-                  name="title"
-                  placeholder="Title"
+                  name='title'
+                  placeholder='Title'
                   value={activity.title}
-                  component={TextInput as any}
+                  component={TextInput}
                 />
                 <Field
-                  name="description"
-                  placeholder="Description"
+                  name='description'
+                  placeholder='Description'
+                  rows={3}
                   value={activity.description}
-                  component={TextAreaInput as any}
+                  component={TextAreaInput}
                 />
                 <Field
-                  name="category"
+                  component={SelectInput}
                   options={category}
-                  placeholder="Category"
+                  name='category'
+                  placeholder='Category'
                   value={activity.category}
-                  component={SelectInput as any}
                 />
-                <Form.Group widths="equal">
+                <Form.Group widths='equal'>
                   <Field
-                    name="date"
+                    component={DateInput}
+                    name='date'
                     date={true}
-                    placeholder="Date"
+                    placeholder='Date'
                     value={activity.date}
-                    component={DateInput as any}
                   />
                   <Field
-                    name="time"
-                    placeholder="Time"
+                    component={DateInput}
+                    name='time'
                     time={true}
+                    placeholder='Time'
                     value={activity.time}
-                    component={DateInput as any}
                   />
                 </Form.Group>
 
                 <Field
-                  name="city"
-                  placeholder="City"
+                  component={TextInput}
+                  name='city'
+                  placeholder='City'
                   value={activity.city}
-                  component={TextInput as any}
                 />
                 <Field
-                  name="venue"
-                  placeholder="Venue"
+                  component={TextInput}
+                  name='venue'
+                  placeholder='Venue'
                   value={activity.venue}
-                  component={TextInput as any}
                 />
                 <Button
                   loading={submitting}
                   disabled={loading || invalid || pristine}
-                  floated="right"
+                  floated='right'
                   positive
-                  type="submit"
-                  content="Submit"
+                  type='submit'
+                  content='Submit'
                 />
                 <Button
                   onClick={
                     activity.id
                       ? () => history.push(`/activities/${activity.id}`)
-                      : () => history.push("/activities")
+                      : () => history.push('/activities')
                   }
                   disabled={loading}
-                  floated="right"
-                  type="button"
-                  content="Cancel"
+                  floated='right'
+                  type='button'
+                  content='Cancel'
                 />
               </Form>
             )}

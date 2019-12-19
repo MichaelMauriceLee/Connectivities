@@ -11,7 +11,7 @@ namespace API.Controllers
         [HttpGet("{username}")]
         public async Task<ActionResult<Profile>> Get(string username)
         {
-            return await Mediator.Send(new Details.Query { Username = username });
+            return await Mediator.Send(new Details.Query{Username = username});
         }
 
         [HttpPut]
@@ -21,9 +21,9 @@ namespace API.Controllers
         }
 
         [HttpGet("{username}/activities")]
-        public async Task<ActionResult<List<UserActivityDto>>> GetUserActivities(string username, string predicate)
+        public async Task<ActionResult<List<UserActivityDto>>> GetUserActivities(string username, string predicate) 
         {
-            return await Mediator.Send(new ListActivities.Query { Username = username, Predicate = predicate });
+            return await Mediator.Send(new ListActivities.Query{Username = username, Predicate = predicate});
         }
     }
 }

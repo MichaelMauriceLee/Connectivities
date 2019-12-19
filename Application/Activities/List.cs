@@ -50,27 +50,29 @@ namespace Application.Activities
 
             public async Task<ActivitiesEnvelope> Handle(Query request, CancellationToken cancellationToken)
             {
-                var querable = _context.Activities
+                var queryable = _context.Activities
                     .Where(x => x.Date >= request.StartDate)
                     .OrderBy(x => x.Date)
                     .AsQueryable();
 
                 if (request.IsGoing && !request.IsHost)
                 {
-                    querable = querable.Where(x => x.UserActivities.Any(a => a.AppUser.UserName == _userAccessor.GetCurrentUsername()));
+                    queryable = queryable.Where(x => x.UserActivities.Any(a => a.AppUser.UserName == _userAccessor.GetCurrentUsername()));
                 }
 
                 if (request.IsHost && !request.IsGoing)
                 {
-                    querable = querable.Where(x => x.UserActivities.Any(a => a.AppUser.UserName == _userAccessor.GetCurrentUsername() && a.IsHost));
+                    queryable = queryable.Where(x => x.UserActivities.Any(a => a.AppUser.UserName == _userAccessor.GetCurrentUsername() && a.IsHost));
                 }
 
-                var activities = await querable.Skip(request.Offset ?? 0).Take(request.Limit ?? 3).ToListAsync();
+                var activities = await queryable
+                    .Skip(request.Offset ?? 0)
+                    .Take(request.Limit ?? 3).ToListAsync();
 
                 return new ActivitiesEnvelope
                 {
                     Activities = _mapper.Map<List<Activity>, List<ActivityDto>>(activities),
-                    ActivityCount = querable.Count()
+                    ActivityCount = queryable.Count()
                 };
             }
         }

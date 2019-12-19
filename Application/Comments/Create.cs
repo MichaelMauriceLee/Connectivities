@@ -35,7 +35,7 @@ namespace Application.Comments
                 var activity = await _context.Activities.FindAsync(request.ActivityId);
 
                 if (activity == null)
-                    throw new RestException(HttpStatusCode.NotFound, new { Activity = "Not found" });
+                    throw new RestException(HttpStatusCode.NotFound, new {Activity = "Not found"});
 
                 var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == request.Username);
 

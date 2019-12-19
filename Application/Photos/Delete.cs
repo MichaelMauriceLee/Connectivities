@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Errors;
@@ -20,12 +21,12 @@ namespace Application.Photos
         public class Handler : IRequestHandler<Command>
         {
             private readonly DataContext _context;
-            public IPhotoAccessor _photoAccessor { get; set; }
-            public IUserAccessor _userAccessor { get; set; }
+            private readonly IUserAccessor _userAccessor;
+            private readonly IPhotoAccessor _photoAccessor;
             public Handler(DataContext context, IUserAccessor userAccessor, IPhotoAccessor photoAccessor)
             {
-                _userAccessor = userAccessor;
                 _photoAccessor = photoAccessor;
+                _userAccessor = userAccessor;
                 _context = context;
             }
 
@@ -36,16 +37,15 @@ namespace Application.Photos
                 var photo = user.Photos.FirstOrDefault(x => x.Id == request.Id);
 
                 if (photo == null)
-                    throw new RestException(System.Net.HttpStatusCode.NotFound, new { Photo = "Not found" });
-
+                    throw new RestException(HttpStatusCode.NotFound, new {Photo = "Not found"});
 
                 if (photo.IsMain)
-                    throw new RestException(System.Net.HttpStatusCode.BadRequest, new { Photo = "You cannot delete your main photo" });
+                    throw new RestException(HttpStatusCode.BadRequest, new {Photo = "You cannot delete your main photo"});
 
                 var result = _photoAccessor.DeletePhoto(photo.Id);
 
                 if (result == null)
-                    throw new Exception("Problem deleting the photo");
+                    throw new Exception("Problem deleting photo");
 
                 user.Photos.Remove(photo);
 

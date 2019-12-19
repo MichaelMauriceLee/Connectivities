@@ -32,35 +32,54 @@ namespace API
         {
             Configuration = configuration;
         }
+
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+
+        public void ConfigureDevelopmentServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(opt =>
             {
                 opt.UseLazyLoadingProxies();
-                opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
-            services.AddCors(opt =>
+
+            ConfigureServices(services);
+        }
+
+        public void ConfigureProductionServices(IServiceCollection services)
+        {
+            services.AddDbContext<DataContext>(opt =>
             {
-                opt.AddPolicy("CorsPolicy", policy =>
+                opt.UseLazyLoadingProxies();
+                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+            });
+
+            ConfigureServices(services);
+        }
+        
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddCors(opt => 
+            {
+                opt.AddPolicy("CorsPolicy", policy => 
                 {
                     policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000").AllowCredentials();
                 });
             });
+            services.AddMediatR(typeof(List.Handler).Assembly);
+            services.AddAutoMapper(typeof(List.Handler));
+            services.AddSignalR();
             services.AddControllers(opt =>
             {
                 var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
                 opt.Filters.Add(new AuthorizeFilter(policy));
             })
-            .AddFluentValidation(cfg =>
-            {
-                cfg.RegisterValidatorsFromAssemblyContaining<Create>();
-            });
-            services.AddMediatR(typeof(List.Handler).Assembly);
-            services.AddAutoMapper(typeof(List.Handler));
-            services.AddSignalR();
+                .AddFluentValidation(cfg => 
+                {
+                    cfg.RegisterValidatorsFromAssemblyContaining<Create>();
+                });
 
             var builder = services.AddIdentityCore<AppUser>();
             var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
@@ -77,29 +96,31 @@ namespace API
             services.AddTransient<IAuthorizationHandler, IsHostRequirementHandler>();
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TokenKey"]));
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
-            {
-                opt.TokenValidationParameters = new TokenValidationParameters
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(opt => 
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = key,
-                    ValidateAudience = false,
-                    ValidateIssuer = false
-                };
-                opt.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
+                    opt.TokenValidationParameters = new TokenValidationParameters
                     {
-                        var accessToken = context.Request.Query["access_token"];
-                        var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/chat")))
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = key,
+                        ValidateAudience = false,
+                        ValidateIssuer = false
+                    };
+                    opt.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
                         {
-                            context.Token = accessToken;
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/chat")))
+                            {
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
                         }
-                        return Task.CompletedTask;
-                    }
-                };
-            });
+                    };
+                });
+
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddScoped<IPhotoAccessor, PhotoAccessor>();
@@ -114,10 +135,27 @@ namespace API
             if (env.IsDevelopment())
             {
                 // app.UseDeveloperExceptionPage();
-
             }
 
             // app.UseHttpsRedirection();
+
+            app.UseXContentTypeOptions();
+            app.UseReferrerPolicy(opt => opt.NoReferrer());
+            app.UseXXssProtection(opt => opt.EnabledWithBlockMode());
+            app.UseXfo(opt => opt.Deny());
+            app.UseCsp(opt => opt
+                    .BlockAllMixedContent()
+                    .StyleSources(s => s.Self()
+                        .CustomSources("https://fonts.googleapis.com", "sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs="))
+                    .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
+                    .FormActions(s => s.Self())
+                    .FrameAncestors(s => s.Self())
+                    .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com", "blob:", "data:"))
+                    .ScriptSources(s => s.Self().CustomSources("sha256-zTmokOtDNMlBIULqs//ZgFtzokerG72Q30ccMjdGbSA="))
+                );
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
 
             app.UseRouting();
             app.UseCors("CorsPolicy");
@@ -129,8 +167,8 @@ namespace API
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/chat");
+                endpoints.MapFallbackToController("Index", "Fallback");
             });
-
         }
     }
 }
