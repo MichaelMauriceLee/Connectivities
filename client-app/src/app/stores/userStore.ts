@@ -67,8 +67,9 @@ export default class UserStore {
         this.user = user;
         this.rootStore.commonStore.setToken(user.token);
         this.rootStore.modalStore.closeModal();
-        history.push('/activities');
-      });
+        this.loading = false;
+      })
+      history.push('/activities');
     } catch (error) {
       runInAction(() => {
         this.loading = false;

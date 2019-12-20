@@ -127,7 +127,7 @@ namespace API
             services.AddScoped<IProfileReader, ProfileReader>();
             services.AddScoped<IFacebookAccessor, FacebookAccessor>();
             services.Configure<CloudinarySettings>(Configuration.GetSection("Cloudinary"));
-            services.Configure<FacebookAppSettings>(Configuration.GetSection("Authenication:Facebook"));
+            services.Configure<FacebookAppSettings>(Configuration.GetSection("Authentication:Facebook"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -153,12 +153,12 @@ namespace API
             app.UseCsp(opt => opt
                     .BlockAllMixedContent()
                     .StyleSources(s => s.Self()
-                        .CustomSources("https://fonts.googleapis.com", "sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs="))
+                        .CustomSources("https://fonts.googleapis.com", "sha256-F4GpCPyRepgP5znjMD8sc7PEjzet5Eef4r09dEGPpTs=", "sha256-tsYFq5pUcggQKFXnvmlvUrk8MgTJLL1Gjnqenv201b8="))
                     .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
                     .FormActions(s => s.Self())
                     .FrameAncestors(s => s.Self())
-                    .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com", "blob:", "data:"))
-                    .ScriptSources(s => s.Self().CustomSources("sha256-zTmokOtDNMlBIULqs//ZgFtzokerG72Q30ccMjdGbSA="))
+                    .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com", "blob:", "data:", "https://platform-lookaside.fbsbx.com/"))
+                    .ScriptSources(s => s.Self().CustomSources("sha256-zTmokOtDNMlBIULqs//ZgFtzokerG72Q30ccMjdGbSA=", "https://connect.facebook.net/en_US/sdk.js"))
                 );
 
             app.UseDefaultFiles();
